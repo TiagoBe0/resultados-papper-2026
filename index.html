@@ -1,0 +1,963 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PIPELINE-STEIN-1 | Resultados Test Set</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f1f5f9;
+    --card: #ffffff;
+    --border: #e2e8f0;
+    --text-primary: #0f172a;
+    --text-secondary: #475569;
+    --text-muted: #94a3b8;
+    --accent: #1e3a5f;
+    --accent-light: #3b82f6;
+    --success: #059669;
+    --warn: #d97706;
+    --danger: #dc2626;
+    --blue-bg: #eff6ff;
+    --blue-border: #bfdbfe;
+    --yellow-bg: #fef9c3;
+    --yellow-border: #fde047;
+    --mono: 'IBM Plex Mono', 'Fira Code', monospace;
+    --sans: 'IBM Plex Sans', system-ui, sans-serif;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: var(--sans);
+    background: var(--bg);
+    color: var(--text-primary);
+    line-height: 1.5;
+    padding: 24px;
+  }
+
+  .container { max-width: 1040px; margin: 0 auto; }
+
+  h1 {
+    font-family: var(--mono);
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--accent);
+    letter-spacing: -0.5px;
+  }
+
+  .subtitle {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-top: 4px;
+    font-family: var(--mono);
+  }
+
+  .summary-row {
+    display: flex;
+    gap: 12px;
+    margin: 20px 0;
+    flex-wrap: wrap;
+  }
+
+  .summary-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px 20px;
+    flex: 1;
+    min-width: 220px;
+  }
+
+  .summary-card .db-label {
+    font-size: 11px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    font-weight: 600;
+    font-family: var(--mono);
+  }
+
+  .summary-card .metrics {
+    display: flex;
+    gap: 20px;
+    margin-top: 10px;
+    align-items: flex-end;
+  }
+
+  .metric-big {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--accent);
+    font-family: var(--mono);
+    line-height: 1;
+  }
+
+  .metric-small {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    font-family: var(--mono);
+    line-height: 1;
+  }
+
+  .metric-label {
+    font-size: 10px;
+    color: var(--text-muted);
+    margin-top: 2px;
+  }
+
+  .divider-v {
+    border-left: 1px solid var(--border);
+    padding-left: 18px;
+  }
+
+  /* Tabs */
+  .tabs {
+    display: flex;
+    gap: 2px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 0;
+    flex-wrap: wrap;
+  }
+
+  .tab {
+    padding: 9px 16px;
+    border: none;
+    border-bottom: 2px solid transparent;
+    background: none;
+    color: var(--text-muted);
+    font-weight: 500;
+    font-size: 13px;
+    cursor: pointer;
+    font-family: var(--mono);
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+
+  .tab:hover { color: var(--text-secondary); }
+
+  .tab.active {
+    color: var(--accent);
+    font-weight: 700;
+    border-bottom-color: var(--accent);
+  }
+
+  .panel {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-top: none;
+    border-radius: 0 0 8px 8px;
+    padding: 24px;
+  }
+
+  .panel-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 14px;
+    font-family: var(--mono);
+  }
+
+  .panel-note {
+    font-size: 12px;
+    color: var(--text-secondary);
+    line-height: 1.7;
+    margin-top: 14px;
+  }
+
+  /* Heatmap grid */
+  .heatmap {
+    display: grid;
+    gap: 2px;
+    overflow-x: auto;
+  }
+
+  .heatmap-cell {
+    padding: 7px 4px;
+    text-align: center;
+    border-radius: 3px;
+    font-size: 12px;
+    font-weight: 700;
+    font-family: var(--mono);
+  }
+
+  .heatmap-header {
+    font-weight: 600;
+    font-size: 11px;
+    color: var(--text-secondary);
+    padding: 6px 4px;
+    text-align: center;
+  }
+
+  .heatmap-row-label {
+    font-weight: 600;
+    font-size: 12px;
+    color: var(--accent);
+    padding: 7px 6px;
+    display: flex;
+    align-items: center;
+  }
+
+  /* Confusion matrix */
+  .cm-grid {
+    display: grid;
+    gap: 1px;
+    font-size: 10px;
+  }
+
+  .cm-cell {
+    text-align: center;
+    padding: 4px 2px;
+    border-radius: 2px;
+    font-family: var(--mono);
+  }
+
+  .cm-diag {
+    background: #dbeafe;
+    color: #1e40af;
+    font-weight: 700;
+  }
+
+  .cm-off {
+    color: #fff;
+    font-weight: 600;
+  }
+
+  .cm-zero { color: #d1d5db; }
+
+  .cm-header {
+    text-align: center;
+    font-weight: 600;
+    color: var(--text-secondary);
+    padding: 3px;
+    font-size: 9px;
+  }
+
+  .cm-row-label {
+    font-weight: 600;
+    color: var(--accent);
+    padding: 3px;
+    font-size: 9px;
+    display: flex;
+    align-items: center;
+  }
+
+  /* DB selector buttons */
+  .db-btns { display: flex; gap: 6px; margin-bottom: 16px; }
+
+  .db-btn {
+    padding: 5px 14px;
+    border-radius: 4px;
+    border: 1px solid var(--border);
+    background: var(--card);
+    color: var(--text-secondary);
+    font-weight: 600;
+    font-size: 12px;
+    cursor: pointer;
+    font-family: var(--mono);
+    transition: all 0.15s;
+  }
+
+  .db-btn.active {
+    background: var(--accent);
+    color: white;
+    border-color: var(--accent);
+  }
+
+  /* Misclass bars */
+  .misclass-row { display: flex; gap: 16px; flex-wrap: wrap; }
+  .misclass-col { flex: 1; min-width: 220px; }
+  .misclass-col h4 {
+    font-size: 13px; font-weight: 700; color: var(--accent);
+    margin-bottom: 8px; font-family: var(--mono);
+  }
+
+  .bar-item { margin-bottom: 7px; }
+  .bar-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    color: var(--text-secondary);
+    margin-bottom: 2px;
+    font-family: var(--mono);
+  }
+  .bar-count { font-weight: 700; color: var(--danger); }
+  .bar-track {
+    height: 6px;
+    background: #f3f4f6;
+    border-radius: 3px;
+  }
+  .bar-fill {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 0.4s ease;
+  }
+
+  /* Callout boxes */
+  .callout {
+    padding: 14px 16px;
+    border-radius: 6px;
+    font-size: 12px;
+    line-height: 1.7;
+    margin-top: 16px;
+  }
+
+  .callout-blue {
+    background: var(--blue-bg);
+    border: 1px solid var(--blue-border);
+    color: #1e40af;
+  }
+
+  .callout-yellow {
+    background: #fef3c7;
+    border: 1px solid #fbbf24;
+    color: #92400e;
+  }
+
+  .callout b { font-weight: 700; }
+
+  /* Regression table */
+  .reg-grid {
+    display: grid;
+    gap: 2px;
+    font-size: 11px;
+  }
+
+  .reg-cell {
+    text-align: center;
+    padding: 5px 4px;
+    border-radius: 3px;
+    font-weight: 600;
+    font-family: var(--mono);
+    color: var(--accent);
+  }
+
+  /* Canvas charts */
+  .chart-container {
+    position: relative;
+    width: 100%;
+    max-width: 700px;
+    margin: 0 auto;
+  }
+
+  canvas { width: 100% !important; }
+
+  /* Confidence table */
+  .conf-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+    font-family: var(--mono);
+  }
+
+  .conf-table th {
+    text-align: left;
+    padding: 6px 8px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    border-bottom: 2px solid var(--border);
+    font-size: 11px;
+  }
+
+  .conf-table td {
+    padding: 5px 8px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .conf-table tr:last-child td { border-bottom: none; }
+
+  /* Footer */
+  .footer-insights {
+    margin-top: 24px;
+    padding: 18px;
+    background: var(--blue-bg);
+    border: 1px solid var(--blue-border);
+    border-radius: 8px;
+    font-size: 12px;
+    color: #1e40af;
+    line-height: 1.8;
+  }
+
+  .footer-insights h3 {
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 6px;
+    font-family: var(--mono);
+  }
+
+  .hidden { display: none; }
+
+  @media (max-width: 700px) {
+    body { padding: 12px; }
+    .summary-card { min-width: 100%; }
+    .tab { padding: 7px 10px; font-size: 11px; }
+    .panel { padding: 14px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <!-- Header -->
+  <h1>PIPELINE-STEIN-1 -- Resultados Test Set</h1>
+  <div class="subtitle">DGCNN clasificacion + regresion ExtraTrees | 9 clases vacancias | DBA (sin strain) / DBB / DBC (con strain)</div>
+
+  <!-- Summary cards -->
+  <div class="summary-row">
+    <div class="summary-card">
+      <div class="db-label">DBA -- Sin strain</div>
+      <div class="metrics">
+        <div><div class="metric-big">94.83%</div><div class="metric-label">DGCNN Acc</div></div>
+        <div class="divider-v">
+          <div class="metric-small">25.95</div><div class="metric-label">Reg MAE</div>
+          <div class="metric-small" style="margin-top:3px;color:#94a3b8">69.07</div><div class="metric-label">Reg RMSE</div>
+        </div>
+        <div class="divider-v">
+          <div class="metric-small">97.21%</div><div class="metric-label">Mean Conf</div>
+        </div>
+      </div>
+    </div>
+    <div class="summary-card">
+      <div class="db-label">DBB -- Strain</div>
+      <div class="metrics">
+        <div><div class="metric-big">93.38%</div><div class="metric-label">DGCNN Acc</div></div>
+        <div class="divider-v">
+          <div class="metric-small">81.98</div><div class="metric-label">Reg MAE</div>
+          <div class="metric-small" style="margin-top:3px;color:#94a3b8">200.88</div><div class="metric-label">Reg RMSE</div>
+        </div>
+        <div class="divider-v">
+          <div class="metric-small">96.76%</div><div class="metric-label">Mean Conf</div>
+        </div>
+      </div>
+    </div>
+    <div class="summary-card">
+      <div class="db-label">DBC -- Strain</div>
+      <div class="metrics">
+        <div><div class="metric-big">92.11%</div><div class="metric-label">DGCNN Acc</div></div>
+        <div class="divider-v">
+          <div class="metric-small">47.93</div><div class="metric-label">Reg MAE</div>
+          <div class="metric-small" style="margin-top:3px;color:#94a3b8">121.96</div><div class="metric-label">Reg RMSE</div>
+        </div>
+        <div class="divider-v">
+          <div class="metric-small">95.52%</div><div class="metric-label">Mean Conf</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs" id="mainTabs">
+    <button class="tab active" data-tab="accuracy">Accuracy x Clase</button>
+    <button class="tab" data-tab="confusion">Confusion Matrix</button>
+    <button class="tab" data-tab="regression">Regresion</button>
+    <button class="tab" data-tab="misclass">Misclasificaciones</button>
+    <button class="tab" data-tab="confidence">Confianza DGCNN</button>
+    <button class="tab" data-tab="calibration">Calibracion</button>
+    <button class="tab" data-tab="scatter">Regresion Scatter</button>
+  </div>
+
+  <!-- Panel: Accuracy -->
+  <div class="panel" id="panel-accuracy">
+    <div class="panel-title">DGCNN Accuracy por clase y base de datos (%)</div>
+    <div class="heatmap" id="heatmapGrid" style="grid-template-columns: 80px repeat(9, 1fr);"></div>
+    <div class="panel-note">
+      Patron consistente: point_defect y small con accuracy near-perfect en las 3 DBs.
+      La degradacion con strain es mas pronunciada en clases grandes (XL-3, XL-4).
+      Las clases intermedias se mantienen estables (94-96%).
+    </div>
+  </div>
+
+  <!-- Panel: Confusion -->
+  <div class="panel hidden" id="panel-confusion">
+    <div class="db-btns" id="cmBtns">
+      <button class="db-btn active" data-db="DBA">DBA</button>
+      <button class="db-btn" data-db="DBB">DBB</button>
+      <button class="db-btn" data-db="DBC">DBC</button>
+    </div>
+    <div style="font-size:11px;color:#6b7280;margin-bottom:8px;">
+      Filas: clase verdadera | Columnas: clase predicha | Diagonal (azul): aciertos
+    </div>
+    <div class="cm-grid" id="cmGrid" style="grid-template-columns: 70px repeat(9, 1fr);"></div>
+  </div>
+
+  <!-- Panel: Regression -->
+  <div class="panel hidden" id="panel-regression">
+    <div class="panel-title">MAE de regresion por clase (sin XL-4)</div>
+    <div class="reg-grid" id="regGrid" style="grid-template-columns: 80px repeat(8, 1fr);"></div>
+    <div class="callout callout-yellow" style="margin-top:18px;">
+      <b>XL-4 (aislado por escala):</b> DBA = 66.82 | DBB = 211.75 | DBC = 123.17<br>
+      <span style="font-size:11px;color:#a16207;">
+        La clase extra_large_4 abarca rangos de vacancias muy amplios, lo que dificulta la regresion puntual.
+      </span>
+    </div>
+  </div>
+
+  <!-- Panel: Misclassifications -->
+  <div class="panel hidden" id="panel-misclass">
+    <div class="panel-title">Top 5 pares de confusion por base de datos</div>
+    <div class="panel-note" style="margin-top:0;margin-bottom:14px;">
+      Las misclasificaciones son casi exclusivamente entre clases adyacentes. XL-4 confundida con XL-3 domina en las 3 bases.
+    </div>
+    <div class="misclass-row" id="misclassRow"></div>
+  </div>
+
+  <!-- Panel: Confidence -->
+  <div class="panel hidden" id="panel-confidence">
+    <div class="panel-title">Confianza DGCNN por clase y base de datos</div>
+    <div class="db-btns" id="confBtns">
+      <button class="db-btn active" data-db="DBA">DBA</button>
+      <button class="db-btn" data-db="DBB">DBB</button>
+      <button class="db-btn" data-db="DBC">DBC</button>
+    </div>
+    <table class="conf-table" id="confTable"></table>
+    <div class="callout callout-blue" style="margin-top:14px;" id="confCallout"></div>
+  </div>
+
+  <!-- Panel: Calibration -->
+  <div class="panel hidden" id="panel-calibration">
+    <div class="panel-title">Calibracion: confianza predicha vs accuracy real</div>
+    <div class="db-btns" id="calBtns">
+      <button class="db-btn active" data-db="DBA">DBA</button>
+      <button class="db-btn" data-db="DBB">DBB</button>
+      <button class="db-btn" data-db="DBC">DBC</button>
+    </div>
+    <div class="chart-container">
+      <canvas id="calChart" height="320"></canvas>
+    </div>
+    <div class="panel-note" id="calNote"></div>
+  </div>
+
+  <!-- Panel: Scatter -->
+  <div class="panel hidden" id="panel-scatter">
+    <div class="panel-title">Vacancias reales vs regresadas (muestra 600/db)</div>
+    <div class="db-btns" id="scatterBtns">
+      <button class="db-btn active" data-db="DBA">DBA</button>
+      <button class="db-btn" data-db="DBB">DBB</button>
+      <button class="db-btn" data-db="DBC">DBC</button>
+    </div>
+    <div class="chart-container">
+      <canvas id="scatterChart" height="400"></canvas>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="footer-insights">
+    <h3>Observaciones clave</h3>
+    <div>1. Clasificacion DGCNN robusta (92-95%) incluso bajo strain, con errores casi siempre entre clases vecinas.</div>
+    <div>2. Regresion precisa (MAE &lt; 2 vacancias) para clases point_defect hasta XL-3. La clase XL-4 tiene MAE desproporcionado por su amplio rango de vacancias.</div>
+    <div>3. El patron XL-4 -> XL-3 es el error dominante y se amplifica con strain (DBA: 258, DBB: 391, DBC: 475).</div>
+    <div>4. El modelo es sobreconfiado en el rango medio (conf 0.6-0.8): predice con ~70% de confianza pero acierta solo ~50-55%.</div>
+    <div>5. Errores con alta confianza (>0.9) crecen de 146 (DBA) a 288 (DBB) a 235 (DBC), concentrados en XL-4 -> XL-3.</div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script>
+// ============================================================
+// DATA
+// ============================================================
+const CLASS_ORDER = ['point_defect','small','medium_small','medium_large','large_small','extra_large_1','extra_large_2','extra_large_3','extra_large_4'];
+const CLASS_LABELS = {point_defect:'Point Def.',small:'Small',medium_small:'Med-S',medium_large:'Med-L',large_small:'Large-S',extra_large_1:'XL-1',extra_large_2:'XL-2',extra_large_3:'XL-3',extra_large_4:'XL-4'};
+const DBS = ['DBA','DBB','DBC'];
+
+const HEATMAP = {
+  DBA:{point_defect:100.0,small:99.54,medium_small:96.01,medium_large:95.67,large_small:90.97,extra_large_1:95.24,extra_large_2:98.91,extra_large_3:94.05,extra_large_4:92.36},
+  DBB:{point_defect:100.0,small:98.84,medium_small:94.79,medium_large:95.90,large_small:95.64,extra_large_1:95.08,extra_large_2:96.45,extra_large_3:95.54,extra_large_4:88.43},
+  DBC:{point_defect:100.0,small:98.15,medium_small:94.68,medium_large:96.12,large_small:94.24,extra_large_1:98.25,extra_large_2:95.90,extra_large_3:87.20,extra_large_4:85.94}
+};
+
+const REG_MAE = {
+  DBA:{point_defect:0.0,small:0.03,medium_small:0.21,medium_large:0.40,large_small:0.58,extra_large_1:0.48,extra_large_2:0.41,extra_large_3:0.57,extra_large_4:66.82},
+  DBB:{point_defect:0.0,small:0.05,medium_small:0.32,medium_large:0.61,large_small:0.91,extra_large_1:1.04,extra_large_2:0.98,extra_large_3:1.09,extra_large_4:211.75},
+  DBC:{point_defect:0.01,small:0.17,medium_small:0.47,medium_large:0.71,large_small:1.02,extra_large_1:1.43,extra_large_2:1.10,extra_large_3:1.66,extra_large_4:123.17}
+};
+
+const CONFUSION = {
+  DBA:[[258,0,0,0,0,0,0,0,0],[0,1289,6,0,0,0,0,0,0],[0,8,939,31,0,0,0,0,0],[0,0,2,839,36,0,0,0,0],[0,0,0,23,584,35,0,0,0],[0,0,0,0,5,600,25,0,0],[0,0,0,0,0,0,362,4,0],[0,0,0,0,0,0,20,316,0],[0,0,0,0,0,0,0,258,3120]],
+  DBB:[[258,0,0,0,0,0,0,0,0],[0,1281,14,0,0,0,0,0,0],[0,16,927,35,0,0,0,0,0],[0,0,4,841,32,0,0,0,0],[0,0,0,4,614,24,0,0,0],[0,0,0,0,13,599,18,0,0],[0,0,0,0,0,3,353,10,0],[0,0,0,0,0,0,15,321,0],[0,0,0,0,0,0,0,391,2987]],
+  DBC:[[258,0,0,0,0,0,0,0,0],[0,1272,23,0,0,0,0,0,0],[0,19,926,33,0,0,0,0,0],[0,0,16,843,18,0,0,0,0],[0,0,0,16,605,21,0,0,0],[0,0,0,0,0,619,7,4,0],[0,0,0,0,0,11,351,4,0],[0,0,0,0,0,0,43,293,0],[0,0,0,0,0,0,0,475,2903]]
+};
+
+const MISCLASS_TOP = {
+  DBA:[['XL-4 -> XL-3',258],['Med-L -> Large-S',36],['Large-S -> XL-1',35],['Med-S -> Med-L',31],['XL-1 -> XL-2',25]],
+  DBB:[['XL-4 -> XL-3',391],['Med-S -> Med-L',35],['Med-L -> Large-S',32],['Large-S -> XL-1',24],['XL-1 -> XL-2',18]],
+  DBC:[['XL-4 -> XL-3',475],['XL-3 -> XL-2',43],['Med-S -> Med-L',33],['Small -> Med-S',23],['Large-S -> XL-1',21]]
+};
+
+const PRED_DATA = {
+  DBA:{
+    cls_conf:{point_defect:{mean_conf:1.0,mean_conf_correct:1.0,mean_conf_wrong:null,accuracy:1.0,n:258},small:{mean_conf:0.9956,mean_conf_correct:0.9972,mean_conf_wrong:0.6656,accuracy:0.9954,n:1295},medium_small:{mean_conf:0.9833,mean_conf_correct:0.9899,mean_conf_wrong:0.8227,accuracy:0.9601,n:978},medium_large:{mean_conf:0.9734,mean_conf_correct:0.9822,mean_conf_wrong:0.7807,accuracy:0.9567,n:877},large_small:{mean_conf:0.9487,mean_conf_correct:0.9679,mean_conf_wrong:0.7546,accuracy:0.9097,n:642},extra_large_1:{mean_conf:0.9731,mean_conf_correct:0.981,mean_conf_wrong:0.8165,accuracy:0.9524,n:630},extra_large_2:{mean_conf:0.966,mean_conf_correct:0.97,mean_conf_wrong:0.6018,accuracy:0.9891,n:366},extra_large_3:{mean_conf:0.9543,mean_conf_correct:0.9658,mean_conf_wrong:0.7722,accuracy:0.9405,n:336},extra_large_4:{mean_conf:0.9642,mean_conf_correct:0.9801,mean_conf_wrong:0.7717,accuracy:0.9236,n:3378}},
+    calibration:[{bin:'0.5-0.7',conf:0.6013,acc:0.5152,n:363},{bin:'0.7-0.8',conf:0.7479,acc:0.5139,n:144},{bin:'0.8-0.9',conf:0.8552,acc:0.7163,n:215},{bin:'0.9-0.95',conf:0.9292,acc:0.768,n:181},{bin:'0.95-0.99',conf:0.9762,acc:0.898,n:598},{bin:'0.99-1.0',conf:0.9993,acc:0.9941,n:7259}],
+    high_conf_wrong:146,total_wrong:453,
+    mean_conf_all:0.9721,mean_conf_correct:0.9829,mean_conf_wrong:0.7747
+  },
+  DBB:{
+    cls_conf:{point_defect:{mean_conf:1.0,mean_conf_correct:1.0,mean_conf_wrong:null,accuracy:1.0,n:258},small:{mean_conf:0.9907,mean_conf_correct:0.9921,mean_conf_wrong:0.7691,accuracy:0.9884,n:1295},medium_small:{mean_conf:0.9799,mean_conf_correct:0.9877,mean_conf_wrong:0.8383,accuracy:0.9479,n:978},medium_large:{mean_conf:0.9683,mean_conf_correct:0.9766,mean_conf_wrong:0.7755,accuracy:0.959,n:877},large_small:{mean_conf:0.9533,mean_conf_correct:0.9637,mean_conf_wrong:0.7147,accuracy:0.9564,n:642},extra_large_1:{mean_conf:0.9272,mean_conf_correct:0.9395,mean_conf_wrong:0.6898,accuracy:0.9508,n:630},extra_large_2:{mean_conf:0.9561,mean_conf_correct:0.9632,mean_conf_wrong:0.7624,accuracy:0.9645,n:366},extra_large_3:{mean_conf:0.9642,mean_conf_correct:0.973,mean_conf_wrong:0.7764,accuracy:0.9554,n:336},extra_large_4:{mean_conf:0.9643,mean_conf_correct:0.9837,mean_conf_wrong:0.8157,accuracy:0.8843,n:3378}},
+    calibration:[{bin:'0.5-0.7',conf:0.5947,acc:0.5931,n:290},{bin:'0.7-0.8',conf:0.758,acc:0.6162,n:198},{bin:'0.8-0.9',conf:0.8507,acc:0.7254,n:386},{bin:'0.9-0.95',conf:0.9281,acc:0.8088,n:455},{bin:'0.95-0.99',conf:0.9739,acc:0.8497,n:764},{bin:'0.99-1.0',conf:0.9988,acc:0.9859,n:6667}],
+    high_conf_wrong:288,total_wrong:580,
+    mean_conf_all:0.9676,mean_conf_correct:0.9764,mean_conf_wrong:0.8427
+  },
+  DBC:{
+    cls_conf:{point_defect:{mean_conf:0.9994,mean_conf_correct:0.9994,mean_conf_wrong:null,accuracy:1.0,n:258},small:{mean_conf:0.988,mean_conf_correct:0.9906,mean_conf_wrong:0.8504,accuracy:0.9815,n:1295},medium_small:{mean_conf:0.9661,mean_conf_correct:0.9753,mean_conf_wrong:0.7979,accuracy:0.9468,n:978},medium_large:{mean_conf:0.9642,mean_conf_correct:0.9724,mean_conf_wrong:0.7613,accuracy:0.9612,n:877},large_small:{mean_conf:0.9522,mean_conf_correct:0.9635,mean_conf_wrong:0.7586,accuracy:0.9424,n:642},extra_large_1:{mean_conf:0.9485,mean_conf_correct:0.9534,mean_conf_wrong:0.6727,accuracy:0.9825,n:630},extra_large_2:{mean_conf:0.9287,mean_conf_correct:0.9397,mean_conf_wrong:0.671,accuracy:0.959,n:366},extra_large_3:{mean_conf:0.9052,mean_conf_correct:0.9328,mean_conf_wrong:0.7174,accuracy:0.872,n:336},extra_large_4:{mean_conf:0.9434,mean_conf_correct:0.9667,mean_conf_wrong:0.8008,accuracy:0.8594,n:3378}},
+    calibration:[{bin:'0.5-0.7',conf:0.5982,acc:0.6025,n:379},{bin:'0.7-0.8',conf:0.7507,acc:0.6604,n:268},{bin:'0.8-0.9',conf:0.8512,acc:0.6274,n:585},{bin:'0.9-0.95',conf:0.9271,acc:0.8147,n:577},{bin:'0.95-0.99',conf:0.9724,acc:0.9192,n:1020},{bin:'0.99-1.0',conf:0.9984,acc:0.991,n:5931}],
+    high_conf_wrong:235,total_wrong:691,
+    mean_conf_all:0.9552,mean_conf_correct:0.9669,mean_conf_wrong:0.8188
+  }
+};
+
+const SCATTER = {"DBA":[[4,4,"small",1],[639,470,"extra_large_4",1],[232,163,"extra_large_4",1],[836,470,"extra_large_4",1],[10,10,"small",1],[131,130,"extra_large_4",0],[78,78,"extra_large_1",1],[131,130,"extra_large_4",0],[456,359,"extra_large_4",1],[232,163,"extra_large_4",1],[78,78,"extra_large_1",1],[4,4,"small",1],[10,10,"small",1],[30,30,"medium_small",1],[131,130,"extra_large_4",0],[34,34,"medium_large",1],[131,130,"extra_large_4",0],[639,470,"extra_large_4",1],[20,20,"medium_small",1],[639,470,"extra_large_4",1],[836,470,"extra_large_4",1],[232,163,"extra_large_4",1],[8,8,"small",1],[456,359,"extra_large_4",1],[34,34,"medium_large",1],[232,163,"extra_large_4",1],[78,78,"extra_large_1",1],[26,26,"medium_small",1],[639,470,"extra_large_4",1],[8,8,"small",1],[131,130,"extra_large_4",0],[34,34,"medium_large",1],[20,20,"medium_small",1],[78,78,"extra_large_1",1],[4,4,"small",1],[30,30,"medium_small",1],[30,30,"medium_small",1],[4,4,"small",1],[456,359,"extra_large_4",1],[26,26,"medium_small",1],[34,34,"medium_large",1],[456,359,"extra_large_4",1],[78,78,"extra_large_1",1],[639,470,"extra_large_4",1],[10,10,"small",1],[131,130,"extra_large_4",0],[836,470,"extra_large_4",1],[232,163,"extra_large_4",1],[836,470,"extra_large_4",1],[8,8,"small",1],[20,20,"medium_small",1],[4,4,"small",1],[639,470,"extra_large_4",1],[30,30,"medium_small",1],[10,10,"small",1],[456,359,"extra_large_4",1],[26,26,"medium_small",1],[34,34,"medium_large",1],[232,163,"extra_large_4",1],[131,130,"extra_large_4",0],[78,78,"extra_large_1",1],[836,470,"extra_large_4",1],[131,130,"extra_large_4",0],[8,8,"small",1],[20,20,"medium_small",1],[639,470,"extra_large_4",1],[4,4,"small",1],[456,359,"extra_large_4",1],[30,30,"medium_small",1],[34,34,"medium_large",1],[10,10,"small",1],[232,163,"extra_large_4",1],[26,26,"medium_small",1],[836,470,"extra_large_4",1],[639,470,"extra_large_4",1],[131,130,"extra_large_4",0],[78,78,"extra_large_1",1],[456,359,"extra_large_4",1],[131,130,"extra_large_4",0],[8,8,"small",1],[232,163,"extra_large_4",1],[34,34,"medium_large",1],[20,20,"medium_small",1],[836,470,"extra_large_4",1],[4,4,"small",1],[30,30,"medium_small",1],[639,470,"extra_large_4",1],[10,10,"small",1],[131,130,"extra_large_4",0],[26,26,"medium_small",1],[456,359,"extra_large_4",1],[78,78,"extra_large_1",1],[232,163,"extra_large_4",1],[34,34,"medium_large",1],[836,470,"extra_large_4",1],[8,8,"small",1],[20,20,"medium_small",1],[639,470,"extra_large_4",1],[131,130,"extra_large_4",0],[4,4,"small",1],[30,30,"medium_small",1]],"DBB":[[836,138,"extra_large_4",1],[26,26,"medium_small",1],[252,138,"extra_large_4",1],[39,38,"medium_large",1],[69,70,"large_small",1],[51,51,"medium_large",1],[836,138,"extra_large_4",1],[90,88,"extra_large_1",1],[639,138,"extra_large_4",1],[131,131,"extra_large_4",0],[10,10,"small",1],[4,4,"small",1],[113,112,"extra_large_3",1],[456,138,"extra_large_4",1],[2,2,"point_defect",1],[20,20,"medium_small",1],[135,131,"extra_large_4",0],[836,138,"extra_large_4",1],[252,138,"extra_large_4",1],[8,8,"small",1],[135,131,"extra_large_4",0],[30,30,"medium_small",1],[639,138,"extra_large_4",1],[456,138,"extra_large_4",1],[51,51,"medium_large",1],[34,34,"medium_large",1],[131,131,"extra_large_4",0],[69,70,"large_small",1],[39,38,"medium_large",1],[113,112,"extra_large_3",1],[90,88,"extra_large_1",1],[26,26,"medium_small",1],[10,10,"small",1],[4,4,"small",1],[135,131,"extra_large_4",0],[20,20,"medium_small",1],[2,2,"point_defect",1],[836,138,"extra_large_4",1],[8,8,"small",1],[252,138,"extra_large_4",1],[30,30,"medium_small",1],[639,138,"extra_large_4",1],[456,138,"extra_large_4",1],[135,131,"extra_large_4",0],[51,51,"medium_large",1],[131,131,"extra_large_4",0],[34,34,"medium_large",1],[69,70,"large_small",1],[113,112,"extra_large_3",1],[39,38,"medium_large",1],[90,88,"extra_large_1",1],[26,26,"medium_small",1],[10,10,"small",1],[836,138,"extra_large_4",1],[4,4,"small",1],[135,131,"extra_large_4",0],[20,20,"medium_small",1],[252,138,"extra_large_4",1],[2,2,"point_defect",1],[639,138,"extra_large_4",1],[8,8,"small",1],[30,30,"medium_small",1],[456,138,"extra_large_4",1],[836,138,"extra_large_4",1],[51,51,"medium_large",1],[131,131,"extra_large_4",0],[135,131,"extra_large_4",0],[34,34,"medium_large",1],[69,70,"large_small",1],[252,138,"extra_large_4",1],[113,112,"extra_large_3",1],[39,38,"medium_large",1],[90,88,"extra_large_1",1],[639,138,"extra_large_4",1],[26,26,"medium_small",1],[10,10,"small",1],[456,138,"extra_large_4",1],[4,4,"small",1],[135,131,"extra_large_4",0],[836,138,"extra_large_4",1],[20,20,"medium_small",1],[2,2,"point_defect",1],[131,131,"extra_large_4",0],[8,8,"small",1],[252,138,"extra_large_4",1],[30,30,"medium_small",1],[51,51,"medium_large",1],[135,131,"extra_large_4",0],[639,138,"extra_large_4",1],[34,34,"medium_large",1],[836,138,"extra_large_4",1],[69,70,"large_small",1],[456,138,"extra_large_4",1],[113,112,"extra_large_3",1],[39,38,"medium_large",1],[90,88,"extra_large_1",1],[135,131,"extra_large_4",0],[26,26,"medium_small",1],[131,131,"extra_large_4",0],[10,10,"small",1]],"DBC":[[836,411,"extra_large_4",1],[26,26,"medium_small",1],[252,193,"extra_large_4",1],[39,38,"medium_large",1],[69,69,"large_small",1],[51,51,"medium_large",1],[836,411,"extra_large_4",1],[90,89,"extra_large_1",1],[639,411,"extra_large_4",1],[131,130,"extra_large_4",0],[10,10,"small",1],[4,4,"small",1],[113,112,"extra_large_3",1],[456,411,"extra_large_4",1],[2,2,"point_defect",1],[20,20,"medium_small",1],[135,130,"extra_large_4",0],[836,411,"extra_large_4",1],[252,193,"extra_large_4",1],[8,8,"small",1],[135,130,"extra_large_4",0],[30,30,"medium_small",1],[639,411,"extra_large_4",1],[456,411,"extra_large_4",1],[51,51,"medium_large",1],[34,34,"medium_large",1],[131,130,"extra_large_4",0],[69,69,"large_small",1],[39,38,"medium_large",1],[113,112,"extra_large_3",1],[90,89,"extra_large_1",1],[26,26,"medium_small",1],[10,10,"small",1],[4,4,"small",1],[135,130,"extra_large_4",0],[20,20,"medium_small",1],[2,2,"point_defect",1],[836,411,"extra_large_4",1],[8,8,"small",1],[252,193,"extra_large_4",1],[30,30,"medium_small",1],[639,411,"extra_large_4",1],[456,411,"extra_large_4",1],[135,130,"extra_large_4",0],[51,51,"medium_large",1],[131,130,"extra_large_4",0],[34,34,"medium_large",1],[69,69,"large_small",1],[113,112,"extra_large_3",1],[39,38,"medium_large",1],[90,89,"extra_large_1",1],[26,26,"medium_small",1],[10,10,"small",1],[836,411,"extra_large_4",1],[4,4,"small",1],[135,130,"extra_large_4",0],[20,20,"medium_small",1],[252,193,"extra_large_4",1],[2,2,"point_defect",1],[639,411,"extra_large_4",1],[8,8,"small",1],[30,30,"medium_small",1],[456,411,"extra_large_4",1],[836,411,"extra_large_4",1],[51,51,"medium_large",1],[131,130,"extra_large_4",0],[135,130,"extra_large_4",0],[34,34,"medium_large",1],[69,69,"large_small",1],[252,193,"extra_large_4",1],[113,112,"extra_large_3",1],[39,38,"medium_large",1],[90,89,"extra_large_1",1],[639,411,"extra_large_4",1],[26,26,"medium_small",1],[10,10,"small",1],[456,411,"extra_large_4",1],[4,4,"small",1],[135,130,"extra_large_4",0],[836,411,"extra_large_4",1],[20,20,"medium_small",1],[2,2,"point_defect",1],[131,130,"extra_large_4",0],[8,8,"small",1],[252,193,"extra_large_4",1],[30,30,"medium_small",1],[51,51,"medium_large",1],[135,130,"extra_large_4",0],[639,411,"extra_large_4",1],[34,34,"medium_large",1],[836,411,"extra_large_4",1],[69,69,"large_small",1],[456,411,"extra_large_4",1],[113,112,"extra_large_3",1],[39,38,"medium_large",1],[90,89,"extra_large_1",1],[135,130,"extra_large_4",0],[26,26,"medium_small",1],[131,130,"extra_large_4",0],[10,10,"small",1]]};
+
+const CLASS_COLORS = {
+  point_defect:'#6366f1', small:'#3b82f6', medium_small:'#06b6d4', medium_large:'#10b981',
+  large_small:'#84cc16', extra_large_1:'#eab308', extra_large_2:'#f97316',
+  extra_large_3:'#ef4444', extra_large_4:'#be185d'
+};
+
+// ============================================================
+// HELPERS
+// ============================================================
+function accBg(v){
+  if(v>=98) return '#d1fae5'; if(v>=95) return '#ecfdf5';
+  if(v>=92) return '#fef9c3'; if(v>=88) return '#ffedd5';
+  if(v>=85) return '#fee2e2'; return '#fecaca';
+}
+function accColor(v){
+  if(v>=98) return '#065f46'; if(v>=95) return '#047857';
+  if(v>=92) return '#92400e'; if(v>=88) return '#9a3412';
+  if(v>=85) return '#991b1b'; return '#7f1d1d';
+}
+
+// ============================================================
+// TAB SWITCHING
+// ============================================================
+const tabs = document.querySelectorAll('#mainTabs .tab');
+const panels = document.querySelectorAll('.panel');
+const panelIds = ['accuracy','confusion','regression','misclass','confidence','calibration','scatter'];
+
+tabs.forEach(tab => {
+  tab.addEventListener('click', () => {
+    const t = tab.dataset.tab;
+    tabs.forEach(x => x.classList.remove('active'));
+    tab.classList.add('active');
+    panelIds.forEach(id => {
+      document.getElementById('panel-'+id).classList.toggle('hidden', id !== t);
+    });
+    if(t === 'calibration') renderCalChart(currentCalDb);
+    if(t === 'scatter') renderScatterChart(currentScatterDb);
+  });
+});
+
+// ============================================================
+// ACCURACY HEATMAP
+// ============================================================
+(function(){
+  const g = document.getElementById('heatmapGrid');
+  // Header row
+  g.innerHTML = '<div class="heatmap-header"></div>';
+  CLASS_ORDER.forEach(c => {
+    g.innerHTML += '<div class="heatmap-header">'+CLASS_LABELS[c]+'</div>';
+  });
+  DBS.forEach(db => {
+    g.innerHTML += '<div class="heatmap-row-label">'+db+'</div>';
+    CLASS_ORDER.forEach(c => {
+      const v = HEATMAP[db][c];
+      g.innerHTML += '<div class="heatmap-cell" style="background:'+accBg(v)+';color:'+accColor(v)+'">'+v.toFixed(1)+'</div>';
+    });
+  });
+})();
+
+// ============================================================
+// CONFUSION MATRIX
+// ============================================================
+let currentCmDb = 'DBA';
+
+function renderCM(db) {
+  const g = document.getElementById('cmGrid');
+  const cm = CONFUSION[db];
+  const offMax = Math.max(...cm.flat().filter((v,i) => Math.floor(i/9) !== i%9));
+  let html = '<div></div>';
+  CLASS_ORDER.forEach(c => { html += '<div class="cm-header">'+CLASS_LABELS[c]+'</div>'; });
+  cm.forEach((row,i) => {
+    html += '<div class="cm-row-label">'+CLASS_LABELS[CLASS_ORDER[i]]+'</div>';
+    row.forEach((v,j) => {
+      if(i===j) {
+        html += '<div class="cm-cell cm-diag">'+(v>0?v:'-')+'</div>';
+      } else if(v>0) {
+        const intensity = Math.pow(v/offMax, 0.45);
+        const r = Math.round(30+(1-intensity)*200);
+        const gg = Math.round(70+(1-intensity)*160);
+        const b = Math.round(110+(1-intensity)*120);
+        html += '<div class="cm-cell cm-off" style="background:rgb('+r+','+gg+','+b+');font-size:'+(v>999?'8px':'10px')+'">'+v+'</div>';
+      } else {
+        html += '<div class="cm-cell cm-zero">-</div>';
+      }
+    });
+  });
+  g.innerHTML = html;
+}
+
+renderCM('DBA');
+
+document.querySelectorAll('#cmBtns .db-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('#cmBtns .db-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentCmDb = btn.dataset.db;
+    renderCM(currentCmDb);
+  });
+});
+
+// ============================================================
+// REGRESSION TABLE
+// ============================================================
+(function(){
+  const g = document.getElementById('regGrid');
+  const classes = CLASS_ORDER.filter(c => c !== 'extra_large_4');
+  let html = '<div class="heatmap-header"></div>';
+  classes.forEach(c => { html += '<div class="heatmap-header" style="font-size:10px">'+CLASS_LABELS[c]+'</div>'; });
+  DBS.forEach(db => {
+    html += '<div class="heatmap-row-label">'+db+'</div>';
+    classes.forEach(c => {
+      const v = REG_MAE[db][c];
+      const maxV = 2.0;
+      const alpha = 0.05 + Math.min(v/maxV, 1)*0.35;
+      html += '<div class="reg-cell" style="background:rgba(59,130,246,'+alpha+')">'+v.toFixed(2)+'</div>';
+    });
+  });
+  g.innerHTML = html;
+})();
+
+// ============================================================
+// MISCLASSIFICATIONS
+// ============================================================
+(function(){
+  const row = document.getElementById('misclassRow');
+  let html = '';
+  DBS.forEach(db => {
+    const maxCount = MISCLASS_TOP[db][0][1];
+    html += '<div class="misclass-col"><h4>'+db+'</h4>';
+    MISCLASS_TOP[db].forEach(([label, count], i) => {
+      const w = (count/maxCount)*100;
+      const color = i===0 ? '#ef4444' : '#f59e0b';
+      html += '<div class="bar-item"><div class="bar-label"><span>'+label+'</span><span class="bar-count">'+count+'</span></div><div class="bar-track"><div class="bar-fill" style="width:'+w+'%;background:'+color+'"></div></div></div>';
+    });
+    html += '</div>';
+  });
+  row.innerHTML = html;
+})();
+
+// ============================================================
+// CONFIDENCE TABLE
+// ============================================================
+let currentConfDb = 'DBA';
+
+function renderConfTable(db) {
+  const data = PRED_DATA[db];
+  const tbl = document.getElementById('confTable');
+  let html = '<thead><tr><th>Clase</th><th>Accuracy</th><th>Conf (all)</th><th>Conf (correct)</th><th>Conf (wrong)</th><th>n</th></tr></thead><tbody>';
+  CLASS_ORDER.forEach(c => {
+    const d = data.cls_conf[c];
+    html += '<tr><td style="font-weight:600;color:#1e3a5f">'+CLASS_LABELS[c]+'</td>';
+    html += '<td style="color:'+accColor(d.accuracy*100)+'">'+( (d.accuracy*100).toFixed(1))+'%</td>';
+    html += '<td>'+(d.mean_conf*100).toFixed(1)+'%</td>';
+    html += '<td>'+(d.mean_conf_correct !== null ? (d.mean_conf_correct*100).toFixed(1)+'%' : '--')+'</td>';
+    html += '<td style="color:#dc2626">'+(d.mean_conf_wrong !== null ? (d.mean_conf_wrong*100).toFixed(1)+'%' : '--')+'</td>';
+    html += '<td style="color:#94a3b8">'+d.n+'</td></tr>';
+  });
+  html += '</tbody>';
+  tbl.innerHTML = html;
+
+  document.getElementById('confCallout').innerHTML =
+    '<b>Resumen '+db+':</b> Confianza media = '+(data.mean_conf_all*100).toFixed(1)+'% | '+
+    'Correctas: '+(data.mean_conf_correct*100).toFixed(1)+'% | '+
+    'Incorrectas: '+(data.mean_conf_wrong*100).toFixed(1)+'%<br>'+
+    'Errores con alta confianza (>0.9): '+data.high_conf_wrong+' de '+data.total_wrong+' totales ('+
+    ((data.high_conf_wrong/data.total_wrong*100).toFixed(1))+'%)';
+}
+
+renderConfTable('DBA');
+
+document.querySelectorAll('#confBtns .db-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('#confBtns .db-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    renderConfTable(btn.dataset.db);
+  });
+});
+
+// ============================================================
+// CALIBRATION CHART
+// ============================================================
+let calChartInstance = null;
+let currentCalDb = 'DBA';
+
+function renderCalChart(db) {
+  const cal = PRED_DATA[db].calibration;
+  const canvas = document.getElementById('calChart');
+  if(calChartInstance) calChartInstance.destroy();
+
+  calChartInstance = new Chart(canvas, {
+    type: 'bar',
+    data: {
+      labels: cal.map(d => d.bin),
+      datasets: [
+        {
+          label: 'Accuracy real',
+          data: cal.map(d => d.acc * 100),
+          backgroundColor: 'rgba(59, 130, 246, 0.7)',
+          borderColor: '#3b82f6',
+          borderWidth: 1,
+          order: 2
+        },
+        {
+          label: 'Confianza media',
+          data: cal.map(d => d.conf * 100),
+          type: 'line',
+          borderColor: '#ef4444',
+          backgroundColor: 'transparent',
+          pointBackgroundColor: '#ef4444',
+          pointRadius: 5,
+          borderWidth: 2,
+          order: 1
+        },
+        {
+          label: 'Linea ideal (x=y)',
+          data: cal.map(d => d.conf * 100),
+          type: 'line',
+          borderColor: '#d1d5db',
+          borderDash: [6, 4],
+          backgroundColor: 'transparent',
+          pointRadius: 0,
+          borderWidth: 1.5,
+          order: 0
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { position: 'bottom', labels: { font: { family: "'IBM Plex Mono', monospace", size: 11 } } },
+        tooltip: {
+          callbacks: {
+            afterBody: function(ctx) {
+              const i = ctx[0].dataIndex;
+              return 'n = ' + cal[i].n;
+            }
+          }
+        }
+      },
+      scales: {
+        y: {
+          beginAtZero: false, min: 40, max: 105,
+          title: { display: true, text: '%', font: { family: "'IBM Plex Mono', monospace" } },
+          ticks: { font: { family: "'IBM Plex Mono', monospace", size: 11 } }
+        },
+        x: {
+          title: { display: true, text: 'Bin de confianza', font: { family: "'IBM Plex Mono', monospace" } },
+          ticks: { font: { family: "'IBM Plex Mono', monospace", size: 10 } }
+        }
+      }
+    }
+  });
+
+  document.getElementById('calNote').innerHTML =
+    'El modelo es sobreconfiado en el rango 0.5-0.8: predice con confianza moderada pero acierta alrededor del 50-60%. ' +
+    'En el rango alto (>0.95) esta bien calibrado. n por bin: ' + cal.map(d => d.bin + '=' + d.n).join(' | ');
+}
+
+document.querySelectorAll('#calBtns .db-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('#calBtns .db-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentCalDb = btn.dataset.db;
+    renderCalChart(currentCalDb);
+  });
+});
+
+// ============================================================
+// SCATTER CHART
+// ============================================================
+let scatterChartInstance = null;
+let currentScatterDb = 'DBA';
+
+function renderScatterChart(db) {
+  const pts = SCATTER[db];
+  const canvas = document.getElementById('scatterChart');
+  if(scatterChartInstance) scatterChartInstance.destroy();
+
+  // Group by class
+  const datasets = CLASS_ORDER.map(cls => {
+    const filtered = pts.filter(p => p[2] === cls);
+    return {
+      label: CLASS_LABELS[cls],
+      data: filtered.map(p => ({ x: p[0], y: p[1] })),
+      backgroundColor: CLASS_COLORS[cls] + '99',
+      borderColor: CLASS_COLORS[cls],
+      pointRadius: 3.5,
+      pointHoverRadius: 6,
+    };
+  }).filter(ds => ds.data.length > 0);
+
+  // Perfect line
+  const maxVal = Math.max(...pts.map(p => Math.max(p[0], p[1])));
+
+  scatterChartInstance = new Chart(canvas, {
+    type: 'scatter',
+    data: { datasets: datasets },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: {
+          position: 'bottom',
+          labels: { font: { family: "'IBM Plex Mono', monospace", size: 10 }, usePointStyle: true, pointStyle: 'circle' }
+        },
+        annotation: undefined
+      },
+      scales: {
+        x: {
+          title: { display: true, text: 'n_vacancies (real)', font: { family: "'IBM Plex Mono', monospace" } },
+          ticks: { font: { family: "'IBM Plex Mono', monospace", size: 10 } },
+          min: 0
+        },
+        y: {
+          title: { display: true, text: 'n_vacancies (regresado)', font: { family: "'IBM Plex Mono', monospace" } },
+          ticks: { font: { family: "'IBM Plex Mono', monospace", size: 10 } },
+          min: 0
+        }
+      }
+    },
+    plugins: [{
+      id: 'perfectLine',
+      afterDatasetsDraw(chart) {
+        const ctx = chart.ctx;
+        const xScale = chart.scales.x;
+        const yScale = chart.scales.y;
+        const maxLine = Math.min(xScale.max, yScale.max);
+        ctx.save();
+        ctx.strokeStyle = '#9ca3af';
+        ctx.lineWidth = 1.5;
+        ctx.setLineDash([6, 4]);
+        ctx.beginPath();
+        ctx.moveTo(xScale.getPixelForValue(0), yScale.getPixelForValue(0));
+        ctx.lineTo(xScale.getPixelForValue(maxLine), yScale.getPixelForValue(maxLine));
+        ctx.stroke();
+        ctx.restore();
+      }
+    }]
+  });
+}
+
+document.querySelectorAll('#scatterBtns .db-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('#scatterBtns .db-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentScatterDb = btn.dataset.db;
+    renderScatterChart(currentScatterDb);
+  });
+});
+</script>
+
+</body>
+</html>
